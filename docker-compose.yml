@@ -1,0 +1,75 @@
+# Указываем версию синтаксиса Docker Compose
+version: '3.8'
+
+# Определяем все наши сервисы (контейнеры)
+services:
+
+  # 1. Сервис нашего Go-приложения
+  app:
+    build:
+      context: . # Собирать образ из текущей директории
+      dockerfile: Dockerfile # Используя наш Dockerfile
+    image: my-trello-app:latest
+    ports:
+      - "8080:8080" # Пробрасываем порт 8080 из контейнера на наш компьютер
+    environment:
+      # Переменные окружения для подключения к другим сервисам
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=notes_user
+      - DB_PASSWORD=notes_password
+      - DB_NAME=notes_db
+      - REDIS_ADDR=cache:6379
+      - JWT_SECRET_KEY=your_super_secret_key_for_jwt_that_is_very_long
+    depends_on:
+      # `app` запустится только после того, как `db` и `cache` будут готовы
+      - db
+      - cache
+    restart: unless-stopped # Перезапускать контейнер, если он упал
+
+  # 2. Сервис базы данных PostgreSQL
+  db:
+    image: postgres:15-alpine # Используем официальный образ PostgreSQL
+    environment:
+      - POSTGRES_USER=notes_user
+      - POSTGRES_PASSWORD=notes_password
+      - POSTGRES_DB=notes_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Сохраняем данные БД между перезапусками
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+
+  # 3. Сервис кэша Redis
+  cache:
+    image: redis:7-alpine # Используем официальный образ Redis
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+
+  # 4. Сервис сбора метрик Prometheus
+  prometheus:
+    image: prom/prometheus:v2.47.0 # Используем официальный образ Prometheus
+    volumes:
+      # Подключаем наш конфигурационный файл внутрь контейнера
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090" # Открываем веб-интерфейс Prometheus на порту 9090
+    command:
+      # Указываем Prometheus использовать наш конфиг
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: unless-stopped
+
+  # 5. Сервис визуализации Grafana
+  grafana:
+    image: grafana/grafana:10.1.5 # Используем официальный образ Grafana
+    ports:
+      - "3000:3000" # Открываем веб-интерфейс Grafana на порту 3000
+    volumes:
+      - grafana_data:/var/lib/grafana # Сохраняем дашборды и настройки между перезапусками
+    restart: unless-stopped
+
+# Определяем "volumes" для сохранения данных
+volumes:
+  postgres_data:
+  grafana_data:

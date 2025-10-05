@@ -1,0 +1,15 @@
+run:
+  timeout: 5m
+  skip-files:
+    - "docs/.*\\.go"
+    - "internal/repository/mocks.go"
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused

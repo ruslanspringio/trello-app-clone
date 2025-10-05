@@ -1,0 +1,15 @@
+# Игнорируем директорию с зависимостями Go
+vendor/
+
+# Игнорируем git
+.git/
+.gitignore
+
+# Игнорируем Docker-файлы
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Игнорируем скомпилированные бинарники, если они есть
+*.exe
+*.bin

@@ -1,0 +1,50 @@
+# Используем официальный образ Go в качестве базового для всех задач.
+# Укажите вашу версию Go.
+image: golang:1.25
+
+# Определяем стадии (stages) нашего пайплайна.
+# Задачи будут выполняться последовательно, стадия за стадией.
+stages:
+  - lint
+  - test
+  - build
+
+# Кэшируем зависимости Go, чтобы не скачивать их каждый раз.
+# Это значительно ускоряет выполнение пайплайна.
+cache:
+  key:
+    files:
+      - go.sum
+  paths:
+    - .cache/go-build
+    - go/pkg/mod
+  policy: pull-push
+
+# Этот блок выполняется один раз перед запуском любой задачи.
+before_script:
+  - export GOCACHE="/builds/$CI_PROJECT_PATH/.cache/go-build"
+  - export GOPATH="/builds/$CI_PROJECT_PATH/go"
+  - mkdir -p $GOPATH/pkg/mod
+  - go mod download
+
+# --- Определение задач (Jobs) ---
+
+# Задача для запуска линтера
+lint-code:
+  stage: lint
+  # Устанавливаем и запускаем golangci-lint
+  script:
+    - go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
+    - golangci-lint run -v
+
+# Задача для запуска тестов
+run-tests:
+  stage: test
+  script:
+    - go test -v ./...
+
+# Задача для проверки сборки
+check-build:
+  stage: build
+  script:
+    - go build -v ./...
