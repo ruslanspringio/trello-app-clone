@@ -142,3 +142,5 @@ The project follows a clean, layered architecture to separate concerns:
 - **`docs/`**: Contains auto-generated Swagger documentation.
 
 ---
+
+This pet project was used as a training project and was created only to gain experience in application development*
