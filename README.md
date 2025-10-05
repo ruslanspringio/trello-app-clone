@@ -143,4 +143,6 @@ The project follows a clean, layered architecture to separate concerns:
 
 ---
 
-This pet project was used as a training project and was created only to gain experience in application development*
+This pet project was used as a training project and was created only to gain experience in application development, it may not be fully completed. If you have any questions, please contact us by email: rus.golang@mail.ru*
+Этот проект использовался в качестве учебного и был создан исключительно для получения опыта в разработке приложений. Он может быть не полностью завершён. Если у вас есть вопросы, пожалуйста, свяжитесь с нами по электронной почте: rus.golang@mail.ru*
+
